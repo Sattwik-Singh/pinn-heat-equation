@@ -21,7 +21,17 @@ exact series solution, so all errors are measured against the true answer.
 | Collocation | How many residual points are needed? | 50 to 4000 points, 3 seeds |
 | Inverse problem | Can alpha be recovered from noisy sensors? | PINN vs. Crank-Nicolson fit, 0/1/5% noise, 5 seeds |
 
-Results and figures will be added here when the full study has been checked.
+## Key results
+
+Full details are in the [paper](paper/main.pdf). Errors are relative L2.
+
+- **Hard enforcement wins on smooth problems:** median error was 0.003-0.005%, which is 2.2 to 4.4 times lower than the best soft weight.
+- **Heavier penalties hurt:** `w=100` gave the smallest boundary violation of the soft runs but the worst overall error.
+- **The advantage is conditional:** on the fast-decaying mode 8, hard enforcement failed (19-1154%) and soft enforcement was unreliable (5.7-60%).
+- **Classical solvers win here:** Crank-Nicolson reached 0.0018% in about 2 ms on the Dirichlet problem, against 0.0046% after about 108 s for the hard PINN.
+- **Inverse problem:** with noisy sensors, a Crank-Nicolson fit recovered alpha about twice as accurately as the PINN, in about 23 ms against about 107 s.
+
+![Boundary enforcement results](figures/boundary_enforcement.png)
 
 ## Method
 
@@ -44,6 +54,7 @@ $$\hat u(x, t) = u_0(x) + \frac{t}{T}\, g(x)\, N_\theta(\phi(x), t)$$
 pip install -e ".[dev]"
 pytest
 PYTHONPATH=src python experiments/run_all.py --workers 2
+python experiments/make_figures.py
 ```
 
 The full study runs 105 training jobs and takes about 1.5 to 2 hours on 2 CPU
@@ -56,6 +67,9 @@ src/heatpinn/problems.py   Test problems and exact solutions
 src/heatpinn/numerics.py   FTCS and Crank-Nicolson solvers
 src/heatpinn/pinn.py       PINN models, training and evaluation
 experiments/run_all.py     Full experiment runner
+experiments/make_figures.py  Figures and results/summary.json
+paper/                     LaTeX source and PDF
+figures/                   Generated figures
 results/                   Raw results as JSON lines
 tests/                     Unit tests
 ```
