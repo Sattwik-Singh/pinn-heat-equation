@@ -17,7 +17,7 @@ exact series solution, so all errors are measured against the true answer.
 |---|---|---|
 | Boundary enforcement | Does soft or hard enforcement give better accuracy? | 3 boundary types, soft weights 1/10/100 and hard, 5 seeds |
 | Numerical comparison | How do error and runtime compare with FTCS and Crank-Nicolson? | Grid refinement from 10 to 640 cells |
-| Frequency | How does accuracy change for higher modes? | Modes 1, 2, 4, 8, 3 seeds |
+| Frequency | How does accuracy change for higher modes? | Modes 1, 2, 4, 8 (hard); 4, 8 (soft), 3 seeds |
 | Collocation | How many residual points are needed? | 50 to 4000 points, 3 seeds |
 | Inverse problem | Can alpha be recovered from noisy sensors? | PINN vs. Crank-Nicolson fit, 0/1/5% noise, 5 seeds |
 
@@ -46,7 +46,7 @@ pytest
 PYTHONPATH=src python experiments/run_all.py --workers 2
 ```
 
-The full study runs 99 training jobs and takes about 1.5 to 2 hours on 2 CPU
+The full study runs 105 training jobs and takes about 1.5 to 2 hours on 2 CPU
 cores. Runs are seeded, and finished jobs are skipped if a run is restarted.
 
 ## Layout

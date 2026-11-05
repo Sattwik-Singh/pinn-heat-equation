@@ -62,6 +62,13 @@ def frequency_job(mode: int, seed: int) -> dict:
     return train(problem, PINNConfig(seed=seed, **BASE))[1]
 
 
+def frequency_soft_job(mode: int, seed: int) -> dict:
+    """Check whether high-mode failure is specific to hard enforcement."""
+    problem = HeatProblem(amplitudes=single_mode(mode))
+    config = PINNConfig(seed=seed, **BASE, **STRATEGIES["soft (w=10)"])
+    return train(problem, config)[1]
+
+
 def collocation_job(n_collocation: int, seed: int) -> dict:
     config = PINNConfig(seed=seed, n_collocation=n_collocation, **BASE)
     return train(HeatProblem(), config)[1]
@@ -138,6 +145,7 @@ def run_job(job: tuple[str, dict]) -> str:
     function = {
         "boundary": boundary_job,
         "frequency": frequency_job,
+        "frequency_soft": frequency_soft_job,
         "collocation": collocation_job,
         "inverse": inverse_job,
     }[name]
@@ -153,6 +161,7 @@ def all_jobs() -> list[tuple[str, dict]]:
         for label in STRATEGIES:
             jobs += [("boundary", dict(boundary=boundary, label=label, seed=s)) for s in range(5)]
     jobs += [("frequency", dict(mode=m, seed=s)) for m in (1, 2, 4, 8) for s in range(3)]
+    jobs += [("frequency_soft", dict(mode=m, seed=s)) for m in (4, 8) for s in range(3)]
     jobs += [("collocation", dict(n_collocation=n, seed=s)) for n in (50, 200, 1000, 4000) for s in range(3)]
     jobs += [("inverse", dict(noise=n, seed=s)) for n in (0.0, 0.01, 0.05) for s in range(5)]
     return jobs
