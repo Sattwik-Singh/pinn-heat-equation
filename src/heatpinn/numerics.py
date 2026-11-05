@@ -40,25 +40,37 @@ def solve(
     problem: HeatProblem, n_cells: int, n_steps: int, scheme: str = "crank-nicolson"
 ) -> tuple[np.ndarray, np.ndarray]:
     """Integrate to t_end and return the grid and the final solution."""
+    x, _, field = solve_field(problem, n_cells, n_steps, scheme)
+    return x, field[-1]
+
+
+def solve_field(
+    problem: HeatProblem, n_cells: int, n_steps: int, scheme: str = "crank-nicolson"
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Integrate to t_end and return x, t and u with shape (n_t, n_x)."""
     x = np.linspace(0.0, 1.0, n_cells + 1)
     u = problem.initial(x)
+    field = np.empty((n_steps + 1, n_cells + 1))
+    field[0] = u
     dt = problem.t_end / n_steps
     lap = _laplacian(n_cells, problem.boundary)
     identity = sparse.identity(n_cells + 1, format="csc")
 
     if scheme == "ftcs":
         step = identity + problem.alpha * dt * lap
-        for _ in range(n_steps):
+        for i in range(n_steps):
             u = step @ u
+            field[i + 1] = u
     elif scheme == "crank-nicolson":
         half = 0.5 * problem.alpha * dt * lap
         solver = splu((identity - half).tocsc())
         rhs = identity + half
-        for _ in range(n_steps):
+        for i in range(n_steps):
             u = solver.solve(rhs @ u)
+            field[i + 1] = u
     else:
         raise ValueError(f"unknown scheme: {scheme!r}")
-    return x, u
+    return x, np.linspace(0.0, problem.t_end, n_steps + 1), field
 
 
 def relative_l2_error(predicted: np.ndarray, exact: np.ndarray) -> float:

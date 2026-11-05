@@ -7,7 +7,7 @@ name = "heatpinn"
 version = "0.1.0"
 description = "PINNs vs. finite differences for the 1D heat equation"
 requires-python = ">=3.10"
-dependencies = ["numpy", "scipy"]
+dependencies = ["numpy", "scipy", "torch", "matplotlib"]
 
 [project.optional-dependencies]
 dev = ["pytest"]
